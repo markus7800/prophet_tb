@@ -134,9 +134,12 @@
       width: 180px;
       color: #2980b9;
     }
+    .legend h3 {
+      margin-bottom: 0px;
+    }
 
     .credits ul {
-      margin: 0px;
+      margin: 5px;
     }
     
     .credits h3 {
@@ -151,7 +154,19 @@
 <div id="toast">PGN copied to clipboard!</div>
 
 <h2>Longest 6-men check mates</h2>
+
+<div class="desc">
+  <p>
+    Longest checkmates for endgames up to 6 pieces extracted from hobby-built tablebase called <b>Prophet TB</b>.
+  </p>
+  <p>
+    My plan is to make the tablebase fully open-source and available to Lichess.
+  </p>
+</div>
+
+
 <div class="legend">
+  <h3>Table Legend</h3>
   <ul>
     <li><span>STM:</span> side-to-move pieces</li>
     <li><span>SNTM:</span> side-not-to-move pieces</li>
@@ -163,10 +178,10 @@
 </div>
 
 <div class="credits">
-  <h3>Credits</h3>
+  <h3>Acknowledgements</h3>
   <ul>
     <li><a href="https://kirill-kryukov.com/chess/longest-checkmates/longest-checkmates.shtml">Kirill Kryukov</a> for inspiration.</li>
-    <li><a href="https://www.k4it.de/?topic=egtb&lang=en">Eiko Bleicher</a> for making Nalimov TB queryable.</li>
+    <li><a href="https://www.k4it.de/?topic=egtb&lang=en">Eiko Bleicher</a> for making Nalimov TB queriable.</li>
     <li><a href="http://centaur.reading.ac.uk/4563/"> Eugene Nalimov, Guy Haworth, Ernst A. Heinz</a> for publishing details of Nalimov TB index scheme.</li>
     <li>Remembering Daniel "The Prophet" Naroditsky.</li>
   </ul>
@@ -177,7 +192,7 @@
 
   Type in filters to narrow results.<br>
   Use regular expressions for pieces. E.g. "KQ.*NP".<br>
-  Use literals or "(== | <= | > | < | == | !=) value" for numbers. E.g. ">=100" for DTM.
+  Use literals or "(>= | <= | > | < | == | !=) value" for numbers. E.g. ">=100" for DTM.
 
 </div>
 
