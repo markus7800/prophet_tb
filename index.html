@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ProphetTB</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    table {
+      border-collapse: collapse;
+      /* width: 700px; */
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      cursor: pointer;
+      background: #f5f5f5;
+      user-select: none;
+    }
+
+    th.sorted {
+      background: #e0eaff;
+    }
+
+    .sort-indicator {
+      font-size: 0.8em;
+      margin-left: 4px;
+      color: #555;
+    }
+
+    .filter-row input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 4px;
+    }
+
+    .hint {
+      margin-bottom: 10px;
+      font-size: 0.9em;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Longest 6-men check mates</h2>
+<div class="hint">
+  Click to sort. Shift+Click for multi-column sorting.  
+  Type in filters to narrow results.
+</div>
+
+<table id="dataTable">
+  <thead>
+    <tr>
+      <th data-key="stm">STM</th>
+      <th data-key="sntm">SNTM</th>
+      <th data-key="pieces">#pieces</th>
+      <th data-key="pawns">#pawns</th>
+      <th data-key="moves">DTM [moves]</th>
+      <th data-key="line">Line</th>
+    </tr>
+    <tr class="filter-row">
+      <th><input type="text" data-key="stm" placeholder="Filter pieces"></th>
+      <th><input type="text" data-key="sntm" placeholder="Filter pieces"></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>K</td>
+      <td>K</td>
+      <td>2</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>K</td>
+      <td>3</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>KB</td>
+      <td>K</td>
+      <td>3</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>KR</td>
+      <td>K</td>
+      <td>3</td>
+      <td>0</td>
+      <td>16</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%227K%2F8%2F8%2F8%2F8%2F8%2F2k5%2F1R6+w+-+-+0+1%22%5D%0A%0A1.+Ra1+Kd3+2.+Ra4+Kc2+3.+Ra3+Kb1+4.+Rh3+Ka2+5.+Kg7+Kb2+6.+Kf6+Ka2+7.+Rd3+Ka1+8.+Ke5+Kb1+9.+Rc3+Ka1+10.+Kd4+Kb1+11.+Kd3+Kb2+12.+Kd2+Kb1+13.+Rc2+Ka1+14.+Kc3+Kb1+15.+Kb3+Ka1+16.+Rc1%23+%2A#1" target="_blank">7K/8/8/8/8/8/2k5/1R6 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQ</td>
+      <td>K</td>
+      <td>3</td>
+      <td>0</td>
+      <td>10</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%227K%2F6Q1%2F8%2F8%2F8%2F3k4%2F8%2F8+w+-+-+0+1%22%5D%0A%0A1.+Qa1+Kc2+2.+Qa3+Kb1+3.+Qb3%2B+Ka1+4.+Qb4+Ka2+5.+Kg7+Ka1+6.+Kf6+Ka2+7.+Ke5+Ka1+8.+Kd4+Ka2+9.+Kc3+Ka1+10.+Qb2%23+%2A#1" target="_blank">7K/6Q1/8/8/8/3k4/8/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KN</td>
+      <td>3</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KB</td>
+      <td>3</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KR</td>
+      <td>3</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KQ</td>
+      <td>3</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>KP</td>
+      <td>K</td>
+      <td>3</td>
+      <td>1</td>
+      <td>28</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F1k6%2F8%2F8%2FK5P1%2F8+w+-+-+0+1%22%5D%0A%0A1.+Kb3+Kc5+2.+Kc3+Kd5+3.+Kd3+Ke5+4.+Ke3+Kf5+5.+Kf3+Kg5+6.+Kg3+Kh6+7.+Kf4+Kh5+8.+Kf5+Kh6+9.+g3+Kg7+10.+Kg5+Kh7+11.+Kf6+Kh8+12.+g4+Kg8+13.+Kg6+Kh8+14.+g5+Kg8+15.+Kh6+Kf7+16.+g6%2B+Kf8+17.+Kh7+Ke7+18.+g7+Kd6+19.+g8%3DQ+Kc5+20.+Qa2+Kb4+21.+Qc2+Ka3+22.+Qb1+Ka4+23.+Kg6+Ka3+24.+Kf5+Ka4+25.+Ke4+Ka3+26.+Kd3+Ka4+27.+Kc4+Ka3+28.+Qa1%23+%2A#1" target="_blank">8/8/8/1k6/8/8/K5P1/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KP</td>
+      <td>3</td>
+      <td>1</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>KNN</td>
+      <td>K</td>
+      <td>4</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F2N5%2F8%2Fk1K1N3+w+-+-+0+1%22%5D%0A%0A1.+Nc2%23+%2A#1" target="_blank">8/8/8/8/8/2N5/8/k1K1N3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KBN</td>
+      <td>K</td>
+      <td>4</td>
+      <td>0</td>
+      <td>33</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F7B%2F8%2FNk5K+w+-+-+0+1%22%5D%0A%0A1.+Nb3+Kc2+2.+Nd4%2B+Kd2+3.+Nf3%2B+Kc2+4.+Bf1+Kc3+5.+Kg2+Kb4+6.+Kg3+Ka3+7.+Nd2+Ka2+8.+Bd3+Ka1+9.+Kf2+Kb2+10.+Ke3+Ka1+11.+Kd4+Kb2+12.+Be4+Ka2+13.+Kc3+Ka1+14.+Nb3%2B+Ka2+15.+Bc2+Ka3+16.+Bb1+Ka4+17.+Nd4+Ka5+18.+Be4+Ka4+19.+Bd5+Ka3+20.+Nc2%2B+Ka4+21.+Bc6%2B+Ka5+22.+Kc4+Kb6+23.+Nd4+Kc7+24.+Kc5+Kd8+25.+Kd6+Kc8+26.+Nb3+Kd8+27.+Nc5+Kc8+28.+Bd7%2B+Kb8+29.+Kc6+Ka7+30.+Kc7+Ka8+31.+Kb6+Kb8+32.+Na6%2B+Ka8+33.+Bc6%23+%2A#1" target="_blank">8/8/8/8/8/7B/8/Nk5K w - - </a></td>
+    </tr>
+    <tr>
+      <td>KRN</td>
+      <td>K</td>
+      <td>4</td>
+      <td>0</td>
+      <td>16</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%227K%2F8%2F8%2F8%2F8%2F3N4%2F2k5%2F1R6+w+-+-+0+1%22%5D%0A%0A1.+Ra1+Kxd3+2.+Ra4+Kc2+3.+Ra3+Kb1+4.+Rh3+Ka2+5.+Kg7+Kb2+6.+Kf6+Ka2+7.+Rd3+Ka1+8.+Ke5+Kb1+9.+Rc3+Ka1+10.+Kd4+Kb1+11.+Kd3+Kb2+12.+Kd2+Kb1+13.+Rc2+Ka1+14.+Kc3+Kb1+15.+Kb3+Ka1+16.+Rc1%23+%2A#1" target="_blank">7K/8/8/8/8/3N4/2k5/1R6 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQN</td>
+      <td>K</td>
+      <td>4</td>
+      <td>0</td>
+      <td>9</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%227K%2F7N%2F8%2F8%2F8%2F2k5%2F7Q%2F8+w+-+-+0+1%22%5D%0A%0A1.+Ng5+Kd3+2.+Nf3+Ke4+3.+Qd2+Kxf3+4.+Kg7+Kg4+5.+Qd3+Kh5+6.+Qc4+Kg5+7.+Qe4+Kh5+8.+Kf6+Kh6+9.+Qh1%23+%2A#1" target="_blank">7K/7N/8/8/8/2k5/7Q/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KN</td>
+      <td>4</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fn1K5%2Fk1N5+w+-+-+0+1%22%5D%0A%0A1.+Nb3%23+%2A#1" target="_blank">8/8/8/8/8/8/n1K5/k1N5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KB</td>
+      <td>4</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fb7%2Fk1K1N3+w+-+-+0+1%22%5D%0A%0A1.+Nc2%23+%2A#1" target="_blank">8/8/8/8/8/8/b7/k1K1N3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KR</td>
+      <td>4</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fr2N4%2Fk1K5+w+-+-+0+1%22%5D%0A%0A1.+Nb3%23+%2A#1" target="_blank">8/8/8/8/8/8/r2N4/k1K5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KQ</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>KBB</td>
+      <td>K</td>
+      <td>4</td>
+      <td>0</td>
+      <td>19</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F7B%2F8%2F3k4%2FK2B4+w+-+-+0+1%22%5D%0A%0A1.+Bb3+Ke3+2.+Bc2+Kd4+3.+Bf2%2B+Ke5+4.+Kb2+Kf6+5.+Kc3+Ke5+6.+Be3+Kf6+7.+Kd4+Ke6+8.+Bf4+Ke7+9.+Bf5+Kf6+10.+Ke4+Kg7+11.+Ke5+Kf7+12.+Bg5+Kg8+13.+Ke6+Kg7+14.+Ke7+Kh8+15.+Bh6+Kg8+16.+Kf6+Kh8+17.+Kg6+Kg8+18.+Be6%2B+Kh8+19.+Bg7%23+%2A#1" target="_blank">8/8/8/8/7B/8/3k4/K2B4 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KRB</td>
+      <td>K</td>
+      <td>4</td>
+      <td>0</td>
+      <td>16</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%22K7%2F8%2F8%2F8%2F8%2F3B4%2F3k4%2F2R5+w+-+-+0+1%22%5D%0A%0A1.+Ra1+Kxd3+2.+Re1+Kc2+3.+Re6+Kd2+4.+Ka7+Kd3+5.+Kb6+Kd4+6.+Kc6+Kc3+7.+Rd6+Kc4+8.+Rd5+Kb3+9.+Rc5+Ka2+10.+Rb5+Ka1+11.+Rb6+Ka2+12.+Kc5+Ka1+13.+Kc4+Ka2+14.+Kc3+Ka1+15.+Kc2+Ka2+16.+Ra6%23+%2A#1" target="_blank">K7/8/8/8/8/3B4/3k4/2R5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQB</td>
+      <td>K</td>
+      <td>4</td>
+      <td>0</td>
+      <td>8</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%227K%2F8%2F8%2F8%2F8%2F2k5%2F2B4Q%2F8+w+-+-+0+1%22%5D%0A%0A1.+Bb1+Kd4+2.+Qb2%2B+Kd5+3.+Qc3+Kd6+4.+Ba2+Ke7+5.+Qc6+Kf8+6.+Be6+Ke7+7.+Kg7+Kd8+8.+Qd7%23+%2A#1" target="_blank">7K/8/8/8/8/2k5/2B4Q/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KB</td>
+      <td>KN</td>
+      <td>4</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fn1K5%2Fk1B5+w+-+-+0+1%22%5D%0A%0A1.+Bb2%23+%2A#1" target="_blank">8/8/8/8/8/8/n1K5/k1B5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KB</td>
+      <td>KB</td>
+      <td>4</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fb7%2Fk1K1B3+w+-+-+0+1%22%5D%0A%0A1.+Bc3%23+%2A#1" target="_blank">8/8/8/8/8/8/b7/k1K1B3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KB</td>
+      <td>KR</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>KB</td>
+      <td>KQ</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>KRR</td>
+      <td>K</td>
+      <td>4</td>
+      <td>0</td>
+      <td>7</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F7K%2F4R3%2F8%2F8%2F1k6%2FR7+w+-+-+0+1%22%5D%0A%0A1.+Rd1+Kc2+2.+Rd6+Kc3+3.+Rc5%2B+Kb4+4.+Rdc6+Ka3+5.+Rb5+Ka4+6.+Rcb6+Ka3+7.+Ra5%23+%2A#1" target="_blank">8/8/7K/4R3/8/8/1k6/R7 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQR</td>
+      <td>K</td>
+      <td>4</td>
+      <td>0</td>
+      <td>6</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%22K7%2F8%2F7Q%2F8%2F8%2F3k4%2F2R5%2F8+w+-+-+0+1%22%5D%0A%0A1.+Rc1+Ke4+2.+Re1%2B+Kd3+3.+Qe3%2B+Kc4+4.+Rc1%2B+Kd5+5.+Kb7+Kd6+6.+Rd1%23+%2A#1" target="_blank">K7/8/7Q/8/8/3k4/2R5/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KR</td>
+      <td>KN</td>
+      <td>4</td>
+      <td>0</td>
+      <td>40</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F6R1%2F2K5%2Fn7%2F8%2F8%2F3k4+w+-+-+0+1%22%5D%0A%0A1.+Kb4+Nb2+2.+Kc3+Na4%2B+3.+Kb3+Nc5%2B+4.+Kc4+Ne4+5.+Kd3+Nc5%2B+6.+Kd4+Nb3%2B+7.+Kc3+Nc5+8.+Rg4+Ke2+9.+Rc4+Nb7+10.+Kd4+Nd6+11.+Rc5+Kf3+12.+Rd5+Ne8+13.+Rd8+Ng7+14.+Rf8%2B+Ke2+15.+Ke4+Nh5+16.+Rf3+Ng7+17.+Ra3+Nh5+18.+Ra2%2B+Ke1+19.+Rg2+Nf6%2B+20.+Kd4+Kd1+21.+Rg6+Nh7+22.+Rg7+Nf8+23.+Ke5+Kd2+24.+Kf5+Ke3+25.+Rf7+Ng6+26.+Kxg6+Ke4+27.+Ra7+Kd3+28.+Ra4+Kc2+29.+Ra3+Kb1+30.+Re3+Kc1+31.+Re2+Kd1+32.+Ra2+Kc1+33.+Rh2+Kb1+34.+Kf5+Ka1+35.+Re2+Kb1+36.+Ke4+Ka1+37.+Kd3+Kb1+38.+Kc3+Ka1+39.+Kb3+Kb1+40.+Re1%23+%2A#1" target="_blank">8/8/6R1/2K5/n7/8/8/3k4 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KR</td>
+      <td>KB</td>
+      <td>4</td>
+      <td>0</td>
+      <td>29</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2F8%2Fk1b1KR2+w+-+-+0+1%22%5D%0A%0A1.+Kd1+Kb2+2.+Rf2%2B+Kb1+3.+Rf6+Bg5+4.+Rb6%2B+Ka2+5.+Kc2+Ka3+6.+Kc3+Ka4+7.+Kc4+Ka3+8.+Rb3%2B+Ka2+9.+Kc3+Be3+10.+Kc2+Bg1+11.+Rb1+Bh2+12.+Rh1+Be5+13.+Rh3+Bc7+14.+Rh7+Bb6+15.+Rh6+Ba5+16.+Ra6+Ka3+17.+Rxa5%2B+Kb4+18.+Rd5+Kc4+19.+Rd3+Kb5+20.+Rc3+Kb4+21.+Kb2+Kb5+22.+Ka3+Ka6+23.+Rb3+Ka5+24.+Rb1+Ka6+25.+Ka4+Ka7+26.+Ka5+Ka8+27.+Kb6+Kb8+28.+Rc1+Ka8+29.+Rc8%23+%2A#1" target="_blank">8/8/8/8/8/8/8/k1b1KR2 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KR</td>
+      <td>KR</td>
+      <td>4</td>
+      <td>0</td>
+      <td>19</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F5R2%2F1r6%2FK1k5+w+-+-+0+1%22%5D%0A%0A1.+Rf1%2B+Kc2+2.+Rf2%2B+Kc3+3.+Rxb2+Kd4+4.+Rb1+Kd3+5.+Rb4+Kc3+6.+Ra4+Kb3+7.+Rh4+Kc3+8.+Ka2+Kd3+9.+Kb2+Ke3+10.+Kc2+Kf3+11.+Kd2+Kg3+12.+Ra4+Kf3+13.+Rb4+Kf2+14.+Rb3+Kf1+15.+Ke3+Kg2+16.+Ke2+Kg1+17.+Kf3+Kh1+18.+Kg3+Kg1+19.+Rb1%23+%2A#1" target="_blank">8/8/8/8/8/5R2/1r6/K1k5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KR</td>
+      <td>KQ</td>
+      <td>4</td>
+      <td>0</td>
+      <td>19</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F1R6%2F6q1%2FK1k5+w+-+-+0+1%22%5D%0A%0A1.+Rb1%2B+Kd2+2.+Rb2%2B+Ke3+3.+Rxg2+Ke4+4.+Rg1+Kf3+5.+Re1+Kg4+6.+Rf1+Kg3+7.+Rf8+Kh4+8.+Rg8+Kh5+9.+Kb1+Kh6+10.+Rg1+Kh7+11.+Kc1+Kh8+12.+Rg2+Kh7+13.+Kd2+Kh8+14.+Kd3+Kh7+15.+Ke4+Kh8+16.+Ke5+Kh7+17.+Kf6+Kh8+18.+Kf7+Kh7+19.+Rh2%23+%2A#1" target="_blank">8/8/8/8/8/1R6/6q1/K1k5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQQ</td>
+      <td>K</td>
+      <td>4</td>
+      <td>0</td>
+      <td>4</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%223Q4%2F3Q4%2F8%2F3K4%2F8%2F8%2F8%2F2k5+w+-+-+0+1%22%5D%0A%0A1.+Qh3+Kd1+2.+Qg2+Kc1+3.+Qh4+Kb1+4.+Qe1%23+%2A#1" target="_blank">3Q4/3Q4/8/3K4/8/8/8/2k5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQ</td>
+      <td>KN</td>
+      <td>4</td>
+      <td>0</td>
+      <td>21</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F2k5%2F2n5%2FKQ6+w+-+-+0+1%22%5D%0A%0A1.+Ka2+Nb4%2B+2.+Ka3+Nd3+3.+Qg1+Kc4+4.+Qe3+Nc5+5.+Qe5+Nd3+6.+Qe4%2B+Kc3+7.+Qd5+Kd2+8.+Qd4+Ke2+9.+Kb3+Ne1+10.+Kc4+Nf3+11.+Qd3%2B+Kf2+12.+Kd5+Kg2+13.+Qe3+Nh4+14.+Qg5%2B+Kh3+15.+Ke4+Ng2+16.+Kd3+Ne1%2B+17.+Ke2+Nd3+18.+Kxd3+Kh2+19.+Ke2+Kh3+20.+Kf1+Kh2+21.+Qg2%23+%2A#1" target="_blank">8/8/8/8/8/2k5/2n5/KQ6 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQ</td>
+      <td>KB</td>
+      <td>4</td>
+      <td>0</td>
+      <td>17</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F6Q1%2F8%2F4b3%2F3k4%2F8%2F8%2FK7+w+-+-+0+1%22%5D%0A%0A1.+Qg1%2B+Kd3%2B+2.+Kb1+Bd4+3.+Qd1%2B+Ke4+4.+Kc2+Be5+5.+Qd3%2B+Kf4+6.+Qd5+Ba1+7.+Kd3+Bb2+8.+Qe4%2B+Kg5+9.+Qg2%2B+Kf4+10.+Qxb2+Kf5+11.+Qe2+Kg6+12.+Qe5+Kh7+13.+Qg3+Kh8+14.+Kd4+Kh7+15.+Ke5+Kh8+16.+Kf6+Kh7+17.+Qg7%23+%2A#1" target="_blank">8/6Q1/8/4b3/3k4/8/8/K7 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQ</td>
+      <td>KR</td>
+      <td>4</td>
+      <td>0</td>
+      <td>35</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F2r5%2F8%2F2k5%2FK6Q+w+-+-+0+1%22%5D%0A%0A1.+Qb1%2B+Kc3+2.+Qe1%2B+Kd4+3.+Qd2%2B+Ke5+4.+Kb2+Rc5+5.+Qe3%2B+Kd5+6.+Kb3+Rc7+7.+Qd3%2B+Ke6+8.+Qe4%2B+Kd6+9.+Qf4%2B+Kd7+10.+Kb4+Rc6+11.+Kb5+Rc7+12.+Qh2+Kd8+13.+Qd6%2B+Kc8+14.+Qd5+Rb7%2B+15.+Kc6+Rc7%2B+16.+Kb6+Re7+17.+Qf5%2B+Kd8+18.+Kc5+Re1+19.+Qd3%2B+Ke7+20.+Kd5+Kf8+21.+Qf3%2B+Ke7+22.+Qg4+Kf8+23.+Qf4%2B+Ke8+24.+Kd6+Rd1%2B+25.+Ke6+Re1%2B+26.+Kf6+Re2+27.+Qa4%2B+Kd8+28.+Qd1%2B+Rd2+29.+Qxd2%2B+Kc8+30.+Qe1+Kb7+31.+Qa5+Kb8+32.+Ke5+Kc8+33.+Qa7+Kd8+34.+Kd6+Ke8+35.+Qe7%23+%2A#1" target="_blank">8/8/8/8/2r5/8/2k5/K6Q w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQ</td>
+      <td>KQ</td>
+      <td>4</td>
+      <td>0</td>
+      <td>13</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2F8%2Fqk1K2Q1+w+-+-+0+1%22%5D%0A%0A1.+Kd2%2B+Ka2+2.+Qg8%2B+Kb1+3.+Qg6%2B+Ka2+4.+Qe6%2B+Ka3+5.+Qa6%2B+Kb4+6.+Qxa1+Kc5+7.+Qf6+Kd5+8.+Kc3+Ke4+9.+Qg5+Kf3+10.+Kd3+Kf2+11.+Qg4+Kf1+12.+Ke3+Ke1+13.+Qg1%23+%2A#1" target="_blank">8/8/8/8/8/8/8/qk1K2Q1 w - - </a></td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KNN</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KBN</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KRN</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KQN</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KBB</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KRB</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KQB</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KRR</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KQR</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KQQ</td>
+      <td>4</td>
+      <td>0</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>KNP</td>
+      <td>K</td>
+      <td>4</td>
+      <td>1</td>
+      <td>27</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%221N6%2F8%2F8%2F8%2F8%2F2k3P1%2F8%2F2K5+w+-+-+0+1%22%5D%0A%0A1.+Nd7+Kd3+2.+Nf6+Ke3+3.+Nh5+Kf3+4.+Kd2+Kg4+5.+Ke3+Kxh5+6.+Kf4+Kg6+7.+Kg4+Kh7+8.+Kg5+Kg7+9.+g4+Kh7+10.+Kf6+Kh6+11.+g5%2B+Kh7+12.+Kf7+Kh8+13.+Kg6+Kg8+14.+Kh6+Kf7+15.+g6%2B+Kf8+16.+Kh7+Ke7+17.+g7+Kd6+18.+g8%3DQ+Kc5+19.+Qa2+Kb4+20.+Qc2+Ka3+21.+Qb1+Ka4+22.+Kg6+Ka3+23.+Kf5+Ka4+24.+Ke4+Ka3+25.+Kd3+Ka4+26.+Kc4+Ka3+27.+Qa1%23+%2A#1" target="_blank">1N6/8/8/8/8/2k3P1/8/2K5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KBP</td>
+      <td>K</td>
+      <td>4</td>
+      <td>1</td>
+      <td>31</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F3P4%2FKBk5%2F8%2F8%2F8%2F8%2F8+w+-+-+0+1%22%5D%0A%0A1.+d8%3DN%2B+Kd6+2.+Nb7%2B+Kd5+3.+Nc5+Kc4+4.+Ne4+Kd5+5.+Ng3+Kd6+6.+Kb5+Kd5+7.+Be3+Kd6+8.+Kb6+Kd5+9.+Bc1+Kd4+10.+Kb5+Ke5+11.+Kc6+Kd4+12.+Bf4+Kc4+13.+Be3+Kd3+14.+Bg1+Kc4+15.+Bc5+Kb3+16.+Kb5+Kc3+17.+Bf2+Kd3+18.+Kb4+Kc2+19.+Kc4+Kb1+20.+Be1+Kc1+21.+Bc3+Kd1+22.+Kd3+Kc1+23.+Nf1+Kb1+24.+Kc4+Kc2+25.+Ne3%2B+Kb1+26.+Kb3+Kc1+27.+Be1+Kb1+28.+Bd2+Ka1+29.+Nc2%2B+Kb1+30.+Na3%2B+Ka1+31.+Bc3%23+%2A#1" target="_blank">8/3P4/KBk5/8/8/8/8/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KRP</td>
+      <td>K</td>
+      <td>4</td>
+      <td>1</td>
+      <td>16</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F7K%2F8%2F1R6%2F2kP4%2F8%2F8%2F8+w+-+-+0+1%22%5D%0A%0A1.+Rb1+Kxd4+2.+Rd1%2B+Kc3+3.+Rd7+Kb2+4.+Kg6+Kc2+5.+Kf5+Kc3+6.+Ke4+Kc4+7.+Rd5+Kc3+8.+Rd4+Kc2+9.+Rd3+Kc1+10.+Ke3+Kc2+11.+Ke2+Kb1+12.+Kd1+Kb2+13.+Kd2+Ka1+14.+Rb3+Ka2+15.+Kc2+Ka1+16.+Ra3%23+%2A#1" target="_blank">8/7K/8/1R6/2kP4/8/8/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQP</td>
+      <td>K</td>
+      <td>4</td>
+      <td>1</td>
+      <td>10</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F2k5%2F8%2F3P4%2F8%2F5Q1K+w+-+-+0+1%22%5D%0A%0A1.+d4%2B+Kc6+2.+Qb1+Kd7+3.+d5+Kc7+4.+Qa1+Kb6+5.+d6+Kc5+6.+d7+Kd5+7.+d8%3DQ%2B+Ke4+8.+Qc1+Kf5+9.+Qcg5%2B+Ke4+10.+Qdd5%23+%2A#1" target="_blank">8/8/8/2k5/8/3P4/8/5Q1K w - - </a></td>
+    </tr>
+    <tr>
+      <td>KP</td>
+      <td>KN</td>
+      <td>4</td>
+      <td>1</td>
+      <td>29</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2Fk7%2F8%2Fn7%2FK5P1%2F8+w+-+-+0+1%22%5D%0A%0A1.+Kxa3+Kb5+2.+Kb3+Kc5+3.+Kc3+Kd5+4.+Kd3+Ke5+5.+Ke3+Kf5+6.+Kf3+Kg5+7.+Kg3+Kh6+8.+Kf4+Kh5+9.+Kf5+Kh6+10.+g3+Kg7+11.+Kg5+Kh7+12.+Kf6+Kh8+13.+g4+Kg8+14.+Kg6+Kh8+15.+g5+Kg8+16.+Kh6+Kf7+17.+g6%2B+Kf8+18.+Kh7+Ke7+19.+g7+Kd6+20.+g8%3DQ+Kc5+21.+Qa2+Kb4+22.+Qc2+Ka3+23.+Qb1+Ka4+24.+Kg6+Ka3+25.+Kf5+Ka4+26.+Ke4+Ka3+27.+Kd3+Ka4+28.+Kc4+Ka3+29.+Qa1%23+%2A#1" target="_blank">8/8/8/k7/8/n7/K5P1/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KP</td>
+      <td>KB</td>
+      <td>4</td>
+      <td>1</td>
+      <td>29</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2Fk7%2F8%2Fb7%2FK5P1%2F8+w+-+-+0+1%22%5D%0A%0A1.+Kxa3+Kb5+2.+Kb3+Kc5+3.+Kc3+Kd5+4.+Kd3+Ke5+5.+Ke3+Kf5+6.+Kf3+Kg5+7.+Kg3+Kh6+8.+Kf4+Kh5+9.+Kf5+Kh6+10.+g3+Kg7+11.+Kg5+Kh7+12.+Kf6+Kh8+13.+g4+Kg8+14.+Kg6+Kh8+15.+g5+Kg8+16.+Kh6+Kf7+17.+g6%2B+Kf8+18.+Kh7+Ke7+19.+g7+Kd6+20.+g8%3DQ+Kc5+21.+Qa2+Kb4+22.+Qc2+Ka3+23.+Qb1+Ka4+24.+Kg6+Ka3+25.+Kf5+Ka4+26.+Ke4+Ka3+27.+Kd3+Ka4+28.+Kc4+Ka3+29.+Qa1%23+%2A#1" target="_blank">8/8/8/k7/8/b7/K5P1/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KP</td>
+      <td>KR</td>
+      <td>4</td>
+      <td>1</td>
+      <td>43</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F2k5%2F4KP2%2F2r5%2F8%2F8%2F8%2F8+w+-+-+0+1%22%5D%0A%0A1.+f7+Rc6%2B+2.+Ke5+Rc5%2B+3.+Ke4+Rc4%2B+4.+Ke3+Rc3%2B+5.+Kf2+Rc2%2B+6.+Kg3+Rc3%2B+7.+Kg4+Rc4%2B+8.+Kg5+Rc5%2B+9.+Kg6+Rc6%2B+10.+Kg7+Rc1+11.+f8%3DQ+Rg1%2B+12.+Kh6+Rh1%2B+13.+Kg5+Rg1%2B+14.+Kh4+Rh1%2B+15.+Kg3+Rg1%2B+16.+Kf2+Rd1+17.+Qf3+Rd6+18.+Ke3+Kd8+19.+Qf4+Rb6+20.+Qd4%2B+Kc7+21.+Qc5%2B+Rc6+22.+Qe7%2B+Kb6+23.+Kd4+Rc1+24.+Qb4%2B+Kc6+25.+Qa4%2B+Kb6+26.+Kd5+Rc5%2B+27.+Kd6+Rb5+28.+Qd4%2B+Ka5+29.+Qa7%2B+Kb4+30.+Kc6+Ra5+31.+Qb6%2B+Ka4+32.+Qb2+Rh5+33.+Qe2+Ra5+34.+Qd2+Rb5+35.+Qd1%2B+Ka5+36.+Qa1%2B+Kb4+37.+Qd4%2B+Ka5+38.+Qc3%2B+Ka4+39.+Qc4%2B+Ka3+40.+Kxb5+Kb2+41.+Ka4+Ka1+42.+Kb3+Kb1+43.+Qf1%23+%2A#1" target="_blank">8/2k5/4KP2/2r5/8/8/8/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KP</td>
+      <td>KQ</td>
+      <td>4</td>
+      <td>1</td>
+      <td>29</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2Fk7%2F8%2Fq7%2FK5P1%2F8+w+-+-+0+1%22%5D%0A%0A1.+Kxa3+Kb5+2.+Kb3+Kc5+3.+Kc3+Kd5+4.+Kd3+Ke5+5.+Ke3+Kf5+6.+Kf3+Kg5+7.+Kg3+Kh6+8.+Kf4+Kh5+9.+Kf5+Kh6+10.+g3+Kg7+11.+Kg5+Kh7+12.+Kf6+Kh8+13.+g4+Kg8+14.+Kg6+Kh8+15.+g5+Kg8+16.+Kh6+Kf7+17.+g6%2B+Kf8+18.+Kh7+Ke7+19.+g7+Kd6+20.+g8%3DQ+Kc5+21.+Qa2+Kb4+22.+Qc2+Ka3+23.+Qb1+Ka4+24.+Kg6+Ka3+25.+Kf5+Ka4+26.+Ke4+Ka3+27.+Kd3+Ka4+28.+Kc4+Ka3+29.+Qa1%23+%2A#1" target="_blank">8/8/8/k7/8/q7/K5P1/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KP</td>
+      <td>4</td>
+      <td>1</td>
+      <td>7</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2Fp7%2F8%2FN7%2Fk1K5+w+-+-+0+1%22%5D%0A%0A1.+Nb4+a3+2.+Nc2%2B+Ka2+3.+Nd4+Ka1+4.+Kc2+Ka2+5.+Ne2+Ka1+6.+Nc1+a2+7.+Nb3%23+%2A#1" target="_blank">8/8/8/8/p7/8/N7/k1K5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KB</td>
+      <td>KP</td>
+      <td>4</td>
+      <td>1</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fp7%2Fk1K1B3+w+-+-+0+1%22%5D%0A%0A1.+Bc3%23+%2A#1" target="_blank">8/8/8/8/8/8/p7/k1K1B3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KR</td>
+      <td>KP</td>
+      <td>4</td>
+      <td>1</td>
+      <td>26</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F6K1%2F2R5%2F1p6%2F1k6%2F8%2F8+w+-+-+0+1%22%5D%0A%0A1.+Kf5+Ka2+2.+Ra5%2B+Kb3+3.+Ke4+Kc2+4.+Rc5%2B+Kd2+5.+Rb5+Kc3+6.+Ke3+b3+7.+Ke2+Kc4+8.+Rb6+Kc3+9.+Rb7+b2+10.+Kd1+Kd4+11.+Rxb2+Ke5+12.+Ra2+Kd4+13.+Ra5+Kc4+14.+Kc2+Kd4+15.+Kd2+Ke4+16.+Kc3+Ke3+17.+Ra4+Ke2+18.+Re4%2B+Kf3+19.+Kd3+Kf2+20.+Re3+Kf1+21.+Re2+Kg1+22.+Ra2+Kf1+23.+Ke3+Kg1+24.+Kf3+Kh1+25.+Kg3+Kg1+26.+Ra1%23+%2A#1" target="_blank">8/8/6K1/2R5/1p6/1k6/8/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQ</td>
+      <td>KP</td>
+      <td>4</td>
+      <td>1</td>
+      <td>28</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%222QK4%2F8%2F8%2F8%2F8%2F8%2F3kp3%2F8+w+-+-+0+1%22%5D%0A%0A1.+Qd7%2B+Kc1+2.+Qc6%2B+Kd1+3.+Qf3+Kd2+4.+Qf2+Kd1+5.+Qd4%2B+Kc1+6.+Qc3%2B+Kd1+7.+Qd3%2B+Ke1+8.+Kc7+Kf2+9.+Qd2+Kf1+10.+Qf4%2B+Kg1+11.+Qe3%2B+Kf1+12.+Qf3%2B+Ke1+13.+Kb6+Kd2+14.+Qf2+Kd1+15.+Qd4%2B+Kc1+16.+Qc3%2B+Kd1+17.+Qd3%2B+Ke1+18.+Kc5+Kf2+19.+Qd2+Kf1+20.+Qf4%2B+Kg1+21.+Qe3%2B+Kf1+22.+Qf3%2B+Ke1+23.+Kc4+Kd2+24.+Qf2+Kd1+25.+Kd3+e1%3DN%2B+26.+Kd4+Nc2%2B+27.+Kc3+Na1+28.+Qf1%23+%2A#1" target="_blank">2QK4/8/8/8/8/8/3kp3/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KNP</td>
+      <td>4</td>
+      <td>1</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KBP</td>
+      <td>4</td>
+      <td>1</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KRP</td>
+      <td>4</td>
+      <td>1</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KQP</td>
+      <td>4</td>
+      <td>1</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>KPP</td>
+      <td>K</td>
+      <td>4</td>
+      <td>2</td>
+      <td>32</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F2k3P1%2F6P1%2FK7+w+-+-+0+1%22%5D%0A%0A1.+Kb1+Kd4+2.+Kc1+Ke3+3.+Kd1+Kd3+4.+g4+Ke4+5.+g3+Kd4+6.+Kd2+Kd5+7.+Kd3+Ke6+8.+Ke4+Kf6+9.+Kf4+Kg6+10.+g5+Kh5+11.+g6+Kxg6+12.+Kg4+Kh7+13.+Kg5+Kg7+14.+g4+Kh7+15.+Kf6+Kh6+16.+g5%2B+Kh7+17.+Kf7+Kh8+18.+Kg6+Kg8+19.+Kh6+Kf7+20.+g6%2B+Kf8+21.+Kh7+Ke7+22.+g7+Kd6+23.+g8%3DQ+Kc5+24.+Qa2+Kb4+25.+Qc2+Ka3+26.+Qb1+Ka4+27.+Kg6+Ka3+28.+Kf5+Ka4+29.+Ke4+Ka3+30.+Kd3+Ka4+31.+Kc4+Ka3+32.+Qa1%23+%2A#1" target="_blank">8/8/8/8/8/2k3P1/6P1/K7 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KP</td>
+      <td>KP</td>
+      <td>4</td>
+      <td>2</td>
+      <td>33</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%223K4%2F8%2F4p3%2F8%2F8%2F8%2F2P5%2F2k5+w+-+-+0+1%22%5D%0A%0A1.+c4+e5+2.+c5+e4+3.+c6+e3+4.+c7+e2+5.+c8%3DQ%2B+Kd2+6.+Qd7%2B+Kc1+7.+Qc6%2B+Kd1+8.+Qf3+Kd2+9.+Qf2+Kd1+10.+Qd4%2B+Kc1+11.+Qc3%2B+Kd1+12.+Qd3%2B+Ke1+13.+Kc7+Kf2+14.+Qd2+Kf1+15.+Qf4%2B+Kg1+16.+Qe3%2B+Kf1+17.+Qf3%2B+Ke1+18.+Kb6+Kd2+19.+Qf2+Kd1+20.+Qd4%2B+Kc1+21.+Qc3%2B+Kd1+22.+Qd3%2B+Ke1+23.+Kc5+Kf2+24.+Qd2+Kf1+25.+Qf4%2B+Kg1+26.+Qe3%2B+Kf1+27.+Qf3%2B+Ke1+28.+Kc4+Kd2+29.+Qf2+Kd1+30.+Kd3+e1%3DN%2B+31.+Kd4+Nc2%2B+32.+Kc3+Na1+33.+Qf1%23+%2A#1" target="_blank">3K4/8/4p3/8/8/8/2P5/2k5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>K</td>
+      <td>KPP</td>
+      <td>4</td>
+      <td>2</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>KNNN</td>
+      <td>K</td>
+      <td>5</td>
+      <td>0</td>
+      <td>21</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2F2k4N%2F1N4KN+w+-+-+0+1%22%5D%0A%0A1.+Na3%2B+Kb3+2.+Nb5+Kc4+3.+Nd6%2B+Kd5+4.+Nf5+Kc4+5.+Nhg3+Kd5+6.+Nf3+Kc4+7.+Ne3%2B+Kc5+8.+Ne4%2B+Kc6+9.+Ne5%2B+Kb5+10.+N3c4+Ka4+11.+Kf2+Kb5+12.+Ke3+Ka4+13.+Kd4+Kb5+14.+Nc5+Kb4+15.+Nd6+Ka3+16.+Ned3+Ka2+17.+Nc4+Ka1+18.+Kc3+Kb1+19.+Nb3+Ka2+20.+Ndc1%2B+Kb1+21.+Ncd2%23+%2A#1" target="_blank">8/8/8/8/8/8/2k4N/1N4KN w - - </a></td>
+    </tr>
+    <tr>
+      <td>KBNN</td>
+      <td>K</td>
+      <td>5</td>
+      <td>0</td>
+      <td>34</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%22K7%2F8%2F8%2F8%2F8%2F8%2F2NkN3%2F3B4+w+-+-+0+1%22%5D%0A%0A1.+Ne3+Kxe3+2.+Ng1+Kd2+3.+Bh5+Ke3+4.+Nf3+Kf4+5.+Kb7+Ke3+6.+Kb6+Kf4+7.+Kc5+Ke4+8.+Ng5%2B+Kf5+9.+Nh7+Ke4+10.+Bg6%2B+Ke5+11.+Kc4+Kd6+12.+Kd4+Ke6+13.+Bh5+Kf5+14.+Bf7+Kf4+15.+Bg6+Kf3+16.+Ng5%2B+Ke2+17.+Ne6+Kd1+18.+Kd3+Kc1+19.+Kc3+Kd1+20.+Nd4+Kc1+21.+Ne2%2B+Kd1+22.+Kd3+Ke1+23.+Ke3+Kd1+24.+Bb1+Ke1+25.+Bc2+Kf1+26.+Nf4+Ke1+27.+Ng2%2B+Kf1+28.+Kf3+Kg1+29.+Ne3+Kh2+30.+Bf5+Kg1+31.+Kg3+Kh1+32.+Kf2+Kh2+33.+Nf1%2B+Kh1+34.+Be4%23+%2A#1" target="_blank">K7/8/8/8/8/8/2NkN3/3B4 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KRNN</td>
+      <td>K</td>
+      <td>5</td>
+      <td>0</td>
+      <td>15</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%227K%2F8%2F8%2F8%2F8%2F1Nk5%2F1RN5%2F8+w+-+-+0+1%22%5D%0A%0A1.+Rb1+Kxc2+2.+Rc1%2B+Kxb3+3.+Rc8+Kb2+4.+Kg7+Kb3+5.+Kf6+Kb4+6.+Ke5+Kb5+7.+Kd4+Kb6+8.+Rc5+Kb7+9.+Kc4+Ka6+10.+Rb5+Ka7+11.+Rb1+Ka6+12.+Kc5+Ka7+13.+Kc6+Ka8+14.+Kc7+Ka7+15.+Ra1%23+%2A#1" target="_blank">7K/8/8/8/8/1Nk5/1RN5/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQNN</td>
+      <td>K</td>
+      <td>5</td>
+      <td>0</td>
+      <td>8</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%226NN%2F7Q%2F7K%2F8%2F8%2F8%2F3k4%2F8+w+-+-+0+1%22%5D%0A%0A1.+Nf6+Kc3+2.+Ne4%2B+Kb2+3.+Nf7+Ka1+4.+Nd2+Kb2+5.+Qd3+Kc1+6.+Ne5+Kb2+7.+Nec4%2B+Ka1+8.+Qb1%23+%2A#1" target="_blank">6NN/7Q/7K/8/8/8/3k4/8 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KNN</td>
+      <td>KN</td>
+      <td>5</td>
+      <td>0</td>
+      <td>7</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%227n%2F8%2F8%2F8%2F8%2F2K5%2F8%2Fk2N1N2+w+-+-+0+1%22%5D%0A%0A1.+Nd2+Ka2+2.+Nc4+Kb1+3.+Kd2+Ng6+4.+Nc3%2B+Ka1+5.+Kc2+Nf4+6.+Nd2+Ne2+7.+Nb3%23+%2A#1" target="_blank">7n/8/8/8/8/2K5/8/k2N1N2 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KNN</td>
+      <td>KB</td>
+      <td>5</td>
+      <td>0</td>
+      <td>4</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F1N6%2F8%2F1b6%2Fk1NK4+w+-+-+0+1%22%5D%0A%0A1.+Nb3%2B+Kb1+2.+Nd2%2B+Ka1+3.+Kc2+Bc1+4.+Nb3%23+%2A#1" target="_blank">8/8/8/8/1N6/8/1b6/k1NK4 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KNN</td>
+      <td>KR</td>
+      <td>5</td>
+      <td>0</td>
+      <td>3</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F3N4%2Fr7%2F8%2Fk1K1N3+w+-+-+0+1%22%5D%0A%0A1.+Nec2%2B+Ka2+2.+Nb4%2B+Ka1+3.+Ndc2%23+%2A#1" target="_blank">8/8/8/8/3N4/r7/8/k1K1N3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KNN</td>
+      <td>KQ</td>
+      <td>5</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2FqN6%2Fk1K1N3+w+-+-+0+1%22%5D%0A%0A1.+Nc2%23+%2A#1" target="_blank">8/8/8/8/8/8/qN6/k1K1N3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KBBN</td>
+      <td>K</td>
+      <td>5</td>
+      <td>0</td>
+      <td>33</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F7B%2F1kB5%2FN6K+w+-+-+0+1%22%5D%0A%0A1.+Nb3+Kxc2+2.+Nd4%2B+Kd2+3.+Nf3%2B+Kc2+4.+Bf1+Kc3+5.+Kg2+Kb4+6.+Kg3+Ka3+7.+Nd2+Ka2+8.+Bd3+Ka1+9.+Kf2+Kb2+10.+Ke3+Ka1+11.+Kd4+Kb2+12.+Be4+Ka2+13.+Kc3+Ka1+14.+Nb3%2B+Ka2+15.+Bc2+Ka3+16.+Bb1+Ka4+17.+Nd4+Ka5+18.+Be4+Ka4+19.+Bd5+Ka3+20.+Nc2%2B+Ka4+21.+Bc6%2B+Ka5+22.+Kc4+Kb6+23.+Nd4+Kc7+24.+Kc5+Kd8+25.+Kd6+Kc8+26.+Nb3+Kd8+27.+Nc5+Kc8+28.+Bd7%2B+Kb8+29.+Kc6+Ka7+30.+Kc7+Ka8+31.+Kb6+Kb8+32.+Na6%2B+Ka8+33.+Bc6%23+%2A#1" target="_blank">8/8/8/8/8/7B/1kB5/N6K w - - </a></td>
+    </tr>
+    <tr>
+      <td>KRBN</td>
+      <td>K</td>
+      <td>5</td>
+      <td>0</td>
+      <td>29</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%227K%2F8%2F8%2F8%2F8%2FB7%2FRN6%2F1k6+w+-+-+0+1%22%5D%0A%0A1.+Nc4+Kxa2+2.+Bc5+Kb1+3.+Ne3+Kc1+4.+Kg7+Kd2+5.+Kf6+Ke1+6.+Ke5+Kf2+7.+Kf4+Kg1+8.+Nf5%2B+Kh2+9.+Ng3+Kh3+10.+Kf3+Kh2+11.+Bf2+Kh3+12.+Bg1+Kh4+13.+Ne4+Kh5+14.+Bd4+Kh4+15.+Be5+Kh3+16.+Nf2%2B+Kh4+17.+Bf6%2B+Kh5+18.+Kf4+Kg6+19.+Ne4+Kf7+20.+Kf5+Ke8+21.+Ke6+Kf8+22.+Ng3+Kg8+23.+Ke7+Kh7+24.+Kf7+Kh6+25.+Be7+Kh7+26.+Nf5+Kh8+27.+Kg6+Kg8+28.+Nh6%2B+Kh8+29.+Bf6%23+%2A#1" target="_blank">7K/8/8/8/8/B7/RN6/1k6 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQBN</td>
+      <td>K</td>
+      <td>5</td>
+      <td>0</td>
+      <td>7</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%22QN6%2FKB6%2F8%2F8%2F8%2F8%2F8%2F2k5+w+-+-+0+1%22%5D%0A%0A1.+Na6+Kd1+2.+Nb4+Ke1+3.+Nc2%2B+Kd1+4.+Be4+Kc1+5.+Qb7+Kd2+6.+Qb1+Kc3+7.+Qb4%23+%2A#1" target="_blank">QN6/KB6/8/8/8/8/8/2k5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KBN</td>
+      <td>KN</td>
+      <td>5</td>
+      <td>0</td>
+      <td>107</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2FB5n1%2Fk2N1K2+w+-+-+0+1%22%5D%0A%0A1.+Bb3+Nf4+2.+Ke1+Nd3%2B+3.+Kd2+Nc5+4.+Bc2+Nd7+5.+Kc3+Nf6+6.+Kb3+Ne4+7.+Kb4+Ng3+8.+Ka3+Nf1+9.+Nf2+Ne3+10.+Bg6+Nc2%2B+11.+Kb3+Nd4%2B+12.+Kc4+Ne2+13.+Nd3+Ka2+14.+Kb4+Ng3+15.+Bh7+Nf1+16.+Be4+Ne3+17.+Ka4+Nc2+18.+Bd5%2B+Kb1+19.+Bb3+Na1+20.+Bd1+Nc2+21.+Kb3+Nd4%2B+22.+Kc4+Nf5+23.+Kc3+Nd6+24.+Bf3+Ka2+25.+Kb4+Nf5+26.+Bd5%2B+Ka1+27.+Kb3+Nd4%2B+28.+Kc4+Nf5+29.+Be6+Nd6%2B+30.+Kc5+Ne4%2B+31.+Kd4+Nd2+32.+Bd5+Nf1+33.+Kc3+Ng3+34.+Ne5+Ne2%2B+35.+Kc2+Nd4%2B+36.+Kd3+Nb5+37.+Bc6+Na3+38.+Kc3+Ka2+39.+Nd3+Nb1%2B+40.+Kb4+Nd2+41.+Bd5%2B+Ka1+42.+Kc3+Nb1%2B+43.+Kc2+Na3%2B+44.+Kb3+Nc2+45.+Nf4+Nd4%2B+46.+Kc3+Nb5%2B+47.+Kc4+Na3%2B+48.+Kb3+Nb1+49.+Ne2+Nd2%2B+50.+Kc2+Nc4+51.+Kc3+Ne3+52.+Bb3+Ng4+53.+Be6+Ne5+54.+Nc1+Kb1+55.+Nb3+Nc6+56.+Bf5%2B+Ka2+57.+Nc1%2B+Ka3+58.+Nd3+Nb8+59.+Nb2+Na6+60.+Nc4%2B+Ka2+61.+Ne3+Ka3+62.+Bd7+Nc5+63.+Nc2%2B+Ka2+64.+Bc6+Na6+65.+Kc4+Nc7+66.+Nb4%2B+Kb2+67.+Nd3%2B+Kc2+68.+Nf4+Kd2+69.+Kd4+Kc1+70.+Kc5+Na6%2B+71.+Kb5+Nb8+72.+Be8+Kd2+73.+Ng6+Kc3+74.+Kb6+Kb4+75.+Ne7+Kb3+76.+Kb7+Kc3+77.+Kxb8+Kd4+78.+Nc6%2B+Kd5+79.+Kb7+Kc4+80.+Bg6+Kb3+81.+Kb6+Kc4+82.+Be4+Kc3+83.+Kb5+Kb3+84.+Na5%2B+Kc3+85.+Kc5+Kb2+86.+Kb4+Ka2+87.+Nb3+Kb2+88.+Bd3+Ka2+89.+Kc3+Ka3+90.+Bb1+Ka4+91.+Nd4+Ka5+92.+Be4+Ka4+93.+Bd5+Ka3+94.+Nc2%2B+Ka4+95.+Bc6%2B+Ka5+96.+Kc4+Kb6+97.+Nd4+Kc7+98.+Kc5+Kd8+99.+Kd6+Kc8+100.+Nb3+Kd8+101.+Nc5+Kc8+102.+Bd7%2B+Kb8+103.+Kc6+Ka7+104.+Kc7+Ka8+105.+Kb6+Kb8+106.+Na6%2B+Ka8+107.+Bc6%23+%2A#1" target="_blank">8/8/8/8/8/8/B5n1/k2N1K2 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KBN</td>
+      <td>KB</td>
+      <td>5</td>
+      <td>0</td>
+      <td>39</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F3N4%2F8%2F5B2%2F2K5%2F8%2Fk5b1+w+-+-+0+1%22%5D%0A%0A1.+Nb5+Ka2+2.+Kc2+Bc5+3.+Bc1+Bb4+4.+Bb2+Bd2+5.+Nc7+Be3+6.+Nd5+Bd2+7.+Bd4+Be1+8.+Bc5+Ba5+9.+Be7+Be1+10.+Nf4+Bf2+11.+Ne2+Be3+12.+Bf8+Bd2+13.+Kxd2+Kb3+14.+Kd3+Ka4+15.+Kc4+Ka5+16.+Kc5+Ka6+17.+Nc3+Kb7+18.+Nd5+Ka6+19.+Kc6+Ka7+20.+Nc7+Kb8+21.+Bc5+Kc8+22.+Ba7+Kd8+23.+Nd5+Ke8+24.+Bd4+Kd8+25.+Be5+Kc8+26.+Nb6%2B+Kd8+27.+Bf6%2B+Ke8+28.+Kd6+Kf7+29.+Nd5+Kf8+30.+Ke6+Ke8+31.+Ne3+Kf8+32.+Nf5+Ke8+33.+Bh4+Kf8+34.+Be7%2B+Kg8+35.+Kf6+Kh7+36.+Kf7+Kh8+37.+Kg6+Kg8+38.+Nh6%2B+Kh8+39.+Bf6%23+%2A#1" target="_blank">8/8/3N4/8/5B2/2K5/8/k5b1 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KBN</td>
+      <td>KR</td>
+      <td>5</td>
+      <td>0</td>
+      <td>36</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2FK6B%2F1rk2N2+w+-+-+0+1%22%5D%0A%0A1.+Bf4%2B+Kc2+2.+Ne3%2B+Kc1+3.+Nc4%2B+Kc2+4.+Na3%2B+Kd3+5.+Nxb1+Kc2+6.+Nd2+Kc3+7.+Kb1+Kd3+8.+Kb2+Kd4+9.+Kc2+Kc5+10.+Kc3+Kd5+11.+Kd3+Kc5+12.+Nc4+Kd5+13.+Bd6+Kc6+14.+Kd4+Kb7+15.+Kc5+Ka7+16.+Nb6+Ka6+17.+Kc6+Ka7+18.+Bh2+Ka6+19.+Bb8+Ka5+20.+Nd5+Ka4+21.+Be5+Kb3+22.+Ne3+Kb4+23.+Kb6+Ka4+24.+Bc3+Kb3+25.+Be1+Ka4+26.+Bd2+Kb3+27.+Ka5+Ka3+28.+Be1+Kb2+29.+Ka4+Ka2+30.+Nd1+Ka1+31.+Kb3+Kb1+32.+Bd2+Ka1+33.+Bc1+Kb1+34.+Ba3+Ka1+35.+Bb2%2B+Kb1+36.+Nc3%23+%2A#1" target="_blank">8/8/8/8/8/8/K6B/1rk2N2 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KBN</td>
+      <td>KQ</td>
+      <td>5</td>
+      <td>0</td>
+      <td>36</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F5q2%2F4B3%2F8%2F4N3%2F3k3K+w+-+-+0+1%22%5D%0A%0A1.+Nc3%2B+Kd2+2.+Nb1%2B+Ke3+3.+Bxf5+Kf4+4.+Bc2+Kg3+5.+Nd2+Kf2+6.+Nc4+Kg3+7.+Kg1+Kf3+8.+Kh2+Kg4+9.+Kg2+Kh5+10.+Ne5+Kg5+11.+Kf3+Kf6+12.+Ke4+Ke7+13.+Bb3+Kf6+14.+Kf4+Kg7+15.+Kf5+Kh7+16.+Ng6+Kg7+17.+Kg5+Kh7+18.+Kf6+Kh6+19.+Bg8+Kh5+20.+Ne5+Kh4+21.+Bd5+Kg3+22.+Nd3+Kg4+23.+Kg6+Kh4+24.+Bb3+Kg3+25.+Bd1+Kh4+26.+Be2+Kg3+27.+Kf5+Kh4+28.+Bg4+Kg3+29.+Kg5+Kh2+30.+Kh4+Kg2+31.+Be2+Kh2+32.+Nf4+Kg1+33.+Kg3+Kh1+34.+Bd3+Kg1+35.+Nh3%2B+Kh1+36.+Be4%23+%2A#1" target="_blank">8/8/8/5q2/4B3/8/4N3/3k3K w - - </a></td>
+    </tr>
+    <tr>
+      <td>KRRN</td>
+      <td>K</td>
+      <td>5</td>
+      <td>0</td>
+      <td>10</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%227K%2F8%2F8%2F8%2F8%2F8%2F1RNR4%2F2k5+w+-+-+0+1%22%5D%0A%0A1.+Rb3+Kxd2+2.+Nd4+Kc1+3.+Kg7+Kd2+4.+Kf6+Kc1+5.+Ke5+Kd2+6.+Ke4+Ke1+7.+Rb2+Kd1+8.+Ke3+Kc1+9.+Rb3+Kd1+10.+Rb1%23+%2A#1" target="_blank">7K/8/8/8/8/8/1RNR4/2k5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQRN</td>
+      <td>K</td>
+      <td>5</td>
+      <td>0</td>
+      <td>5</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%22Q7%2FRN6%2FK7%2F8%2F8%2F8%2F8%2F1k6+w+-+-+0+1%22%5D%0A%0A1.+Na5+Kc2+2.+Rd7+Kb1+3.+Rd1%2B+Kc2+4.+Qf3+Kb2+5.+Qb3%23+%2A#1" target="_blank">Q7/RN6/K7/8/8/8/8/1k6 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KRN</td>
+      <td>KN</td>
+      <td>5</td>
+      <td>0</td>
+      <td>37</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2Fn7%2F8%2FK7%2F8%2F2kN4%2F3R4+w+-+-+0+1%22%5D%0A%0A1.+Rf1+Kxd2+2.+Kb5+Nc7%2B+3.+Kc4+Ne8+4.+Kd4+Ke2+5.+Rg1+Nc7+6.+Ke4+Kd2+7.+Rb1+Ne6+8.+Rb5+Kc3+9.+Re5+Nd8+10.+Re8+Nb7+11.+Rc8%2B+Kd2+12.+Kd4+Na5+13.+Rc3+Nb7+14.+Ra3+Nd6+15.+Ra5+Nf7+16.+Rd5+Nh6+17.+Ke4%2B+Kc3+18.+Kf4+Nf7+19.+Rd7+Nh6+20.+Rg7+Kb2+21.+Kg5+Kc3+22.+Kxh6+Kd4+23.+Rg1+Kc3+24.+Rg4+Kd3+25.+Kg5+Ke3+26.+Kf5+Kd3+27.+Re4+Kc2+28.+Re3+Kd1+29.+Ke4+Kd2+30.+Kf3+Kd1+31.+Re2+Kc1+32.+Rf2+Kb1+33.+Ke3+Ka1+34.+Kd3+Kb1+35.+Kc3+Ka1+36.+Kb3+Kb1+37.+Rf1%23+%2A#1" target="_blank">8/8/n7/8/K7/8/2kN4/3R4 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KRN</td>
+      <td>KB</td>
+      <td>5</td>
+      <td>0</td>
+      <td>31</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F3b4%2F8%2F5R2%2F1kN1K3+w+-+-+0+1%22%5D%0A%0A1.+Rf4+Be3+2.+Rf3+Bxc1+3.+Kd1+Kb2+4.+Rf2%2B+Kb1+5.+Rf6+Bg5+6.+Rb6%2B+Ka2+7.+Kc2+Ka3+8.+Kc3+Ka4+9.+Kc4+Ka3+10.+Rb3%2B+Ka2+11.+Kc3+Be3+12.+Kc2+Bg1+13.+Rb1+Bh2+14.+Rh1+Be5+15.+Rh3+Bc7+16.+Rh7+Bb6+17.+Rh6+Ba5+18.+Ra6+Ka3+19.+Rxa5%2B+Kb4+20.+Rd5+Kc4+21.+Rd3+Kb5+22.+Rc3+Kb4+23.+Kb2+Kb5+24.+Ka3+Ka6+25.+Rb3+Ka5+26.+Rb1+Ka6+27.+Ka4+Ka7+28.+Ka5+Ka8+29.+Kb6+Kb8+30.+Rc1+Ka8+31.+Rc8%23+%2A#1" target="_blank">8/8/8/8/3b4/8/5R2/1kN1K3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KRN</td>
+      <td>KR</td>
+      <td>5</td>
+      <td>0</td>
+      <td>37</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2FN2K4%2FR7%2F8%2F2k1r3+w+-+-+0+1%22%5D%0A%0A1.+Ra1%2B+Kd2+2.+Ra2%2B+Kc1+3.+Kd3+Rd1%2B+4.+Kc3+Kb1+5.+Rb2%2B+Ka1+6.+Rh2+Rc1%2B+7.+Kb3+Rb1%2B+8.+Kc4+Rg1+9.+Rh5+Rb1+10.+Nc3+Rb7+11.+Rh2+Ra7+12.+Kd3+Rd7%2B+13.+Kc2+Rh7+14.+Rd2+Rd7+15.+Nd5+Rb7+16.+Rd4+Rb2%2B+17.+Kc3+Rb5+18.+Nb4+Rc5%2B+19.+Kb3+Kb1+20.+Rf4+Rc8+21.+Rf1%2B+Rc1+22.+Rf8+Rc7+23.+Nd5+Rb7%2B+24.+Kc3+Ka1+25.+Re8+Rb5+26.+Nb4+Rc5%2B+27.+Kb3+Kb1+28.+Nd3+Rb5%2B+29.+Kc3+Rb7+30.+Re1%2B+Ka2+31.+Nb4%2B+Rxb4+32.+Kxb4+Kb2+33.+Re2%2B+Kc1+34.+Kc3+Kb1+35.+Re1%2B+Ka2+36.+Rc1+Ka3+37.+Ra1%23+%2A#1" target="_blank">8/8/8/8/N2K4/R7/8/2k1r3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KRN</td>
+      <td>KQ</td>
+      <td>5</td>
+      <td>0</td>
+      <td>20</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F1R6%2F4q3%2F3N4%2Fk6K+w+-+-+0+1%22%5D%0A%0A1.+Ra4%2B+Kb2+2.+Nc4%2B+Kb3+3.+Ra3%2B+Kxc4+4.+Rxe3+Kd4+5.+Re1+Kd3+6.+Kg2+Kd4+7.+Rd1%2B+Kc3+8.+Rd8+Kc2+9.+Rd4+Kc3+10.+Re4+Kd2+11.+Kf2+Kd3+12.+Rf4+Kc2+13.+Rf3+Kb1+14.+Ke1+Kc2+15.+Re3+Kb1+16.+Kd1+Kb2+17.+Kd2+Ka1+18.+Rb3+Ka2+19.+Kc2+Ka1+20.+Ra3%23+%2A#1" target="_blank">8/8/8/8/1R6/4q3/3N4/k6K w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQQN</td>
+      <td>K</td>
+      <td>5</td>
+      <td>0</td>
+      <td>4</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F2N2KQQ%2F8%2Fk7+w+-+-+0+1%22%5D%0A%0A1.+Nb1+Ka2+2.+Qe5+Kb3+3.+Qhf5+Ka2+4.+Qc2%23+%2A#1" target="_blank">8/8/8/8/8/2N2KQQ/8/k7 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQN</td>
+      <td>KN</td>
+      <td>5</td>
+      <td>0</td>
+      <td>21</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F3N4%2F2k5%2F1n2Q3%2F3K4+w+-+-+0+1%22%5D%0A%0A1.+Kc1+Nd3%2B+2.+Kb1+Kxd4+3.+Qf3+Nb4+4.+Qg4%2B+Kc5+5.+Kc1+Na2%2B+6.+Kb2+Nb4+7.+Kc3+Nd5%2B+8.+Kd3+Nb4%2B+9.+Ke4+Nc6+10.+Qg1%2B+Kc4+11.+Qc1%2B+Kb5+12.+Qg5%2B+Kb4+13.+Qd5+Na7+14.+Qd4%2B+Kb5+15.+Qxa7+Kc6+16.+Qa3+Kb5+17.+Kd5+Kb6+18.+Qe7+Ka5+19.+Qb7+Ka4+20.+Kc4+Ka3+21.+Qb3%23+%2A#1" target="_blank">8/8/8/8/3N4/2k5/1n2Q3/3K4 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQN</td>
+      <td>KB</td>
+      <td>5</td>
+      <td>0</td>
+      <td>17</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F3b4%2F8%2FN1k5%2FK6Q+w+-+-+0+1%22%5D%0A%0A1.+Nc3+Kxc3+2.+Qd1+Bc5+3.+Qf3%2B+Kc4+4.+Qc6+Kd4+5.+Kb1+Bb4+6.+Kb2+Be1+7.+Qd6%2B+Ke4+8.+Qe6%2B+Kf4+9.+Qxe1+Kg5+10.+Qf1+Kg4+11.+Qf6+Kh5+12.+Qg7+Kh4+13.+Kc1+Kh5+14.+Kd1+Kh4+15.+Ke2+Kh5+16.+Kf3+Kh4+17.+Qg4%23+%2A#1" target="_blank">8/8/8/8/3b4/8/N1k5/K6Q w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQN</td>
+      <td>KR</td>
+      <td>5</td>
+      <td>0</td>
+      <td>38</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F6rK%2F1Q6%2F7N%2Fk7+w+-+-+0+1%22%5D%0A%0A1.+Kh5+Rg5%2B+2.+Kh6+Rg6%2B+3.+Kh7+Rg7%2B+4.+Kh8+Rh7%2B+5.+Kg8+Rh8%2B+6.+Kf7+Rh7%2B+7.+Ke6+Rh6%2B+8.+Kd5+Rh5%2B+9.+Kc4+Rh4%2B+10.+Ng4+Rxg4%2B+11.+Kd5+Rg5%2B+12.+Kd6+Rg6%2B+13.+Kc7+Rg7%2B+14.+Kb8+Rg2+15.+Qe3+Rb2%2B+16.+Kc7+Rb3+17.+Qc1%2B+Ka2+18.+Kc6+Rb1+19.+Qc2%2B+Rb2+20.+Qa4%2B+Kb1+21.+Kc5+Rc2%2B+22.+Kb4+Kb2+23.+Qa8+Rd2+24.+Qe4+Rc2+25.+Qe1+Rc8+26.+Qe5%2B+Kc1+27.+Kb3+Kd1+28.+Qd5%2B+Ke2+29.+Qe6%2B+Kf3+30.+Qxc8+Ke4+31.+Qh3+Ke5+32.+Kc4+Kf6+33.+Qg4+Ke5+34.+Kc5+Kf6+35.+Kd6+Kf7+36.+Qg5+Kf8+37.+Ke6+Ke8+38.+Qe7%23+%2A#1" target="_blank">8/8/8/8/6rK/1Q6/7N/k7 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KQN</td>
+      <td>KQ</td>
+      <td>5</td>
+      <td>0</td>
+      <td>41</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%221q6%2F8%2F7Q%2F8%2F8%2F4K3%2F8%2F3kN3+w+-+-+0+1%22%5D%0A%0A1.+Qh5%2B+Kc1+2.+Nd3%2B+Kc2+3.+Qe2%2B+Kc3+4.+Qd2%2B+Kc4+5.+Qc2%2B+Kd5+6.+Nf4%2B+Ke5+7.+Qe4%2B+Kf6+8.+Qg6%2B+Ke7+9.+Qg7%2B+Kd6+10.+Qf6%2B+Kc5+11.+Nd3%2B+Kd5+12.+Qf3%2B+Kc4+13.+Qg4%2B+Kb3+14.+Qd1%2B+Ka2+15.+Qc2%2B+Ka3+16.+Qc3%2B+Qb3+17.+Qa5%2B+Qa4+18.+Qc5%2B+Ka2+19.+Qc3+Qa7%2B+20.+Ke2+Qe7%2B+21.+Kd1+Qa3+22.+Nc1%2B+Kb1+23.+Nb3+Qb2+24.+Nd2%2B+Ka2+25.+Qc4%2B+Ka1+26.+Qa4%2B+Qa2+27.+Qb4+Qb2+28.+Qa5%2B+Qa2+29.+Qc5+Qb2+30.+Ke2+Ka2+31.+Qa5%2B+Qa3+32.+Qd5%2B+Ka1+33.+Qh1%2B+Kb2+34.+Nc4%2B+Kc3+35.+Nxa3+Kd4+36.+Qh5+Kc3+37.+Qg4+Kb3+38.+Kd1+Kb2+39.+Qb4%2B+Ka2+40.+Nc4+Ka1+41.+Qb2%23+%2A#1" target="_blank">1q6/8/7Q/8/8/4K3/8/3kN3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KNN</td>
+      <td>5</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fn1K5%2FknN5+w+-+-+0+1%22%5D%0A%0A1.+Nb3%23+%2A#1" target="_blank">8/8/8/8/8/8/n1K5/knN5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KBN</td>
+      <td>5</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fb7%2FknK1N3+w+-+-+0+1%22%5D%0A%0A1.+Nc2%23+%2A#1" target="_blank">8/8/8/8/8/8/b7/knK1N3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KRN</td>
+      <td>5</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fr2N4%2FknK5+w+-+-+0+1%22%5D%0A%0A1.+Nb3%23+%2A#1" target="_blank">8/8/8/8/8/8/r2N4/knK5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KQN</td>
+      <td>5</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fqn6%2Fk1K1N3+w+-+-+0+1%22%5D%0A%0A1.+Nc2%23+%2A#1" target="_blank">8/8/8/8/8/8/qn6/k1K1N3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KBB</td>
+      <td>5</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fb7%2Fk1K1Nb2+w+-+-+0+1%22%5D%0A%0A1.+Nc2%23+%2A#1" target="_blank">8/8/8/8/8/8/b7/k1K1Nb2 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KRB</td>
+      <td>5</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fr2N4%2FkbK5+w+-+-+0+1%22%5D%0A%0A1.+Nb3%23+%2A#1" target="_blank">8/8/8/8/8/8/r2N4/kbK5 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KQB</td>
+      <td>5</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fb1q5%2Fk1K1N3+w+-+-+0+1%22%5D%0A%0A1.+Nxc2%23+%2A#1" target="_blank">8/8/8/8/8/8/b1q5/k1K1N3 w - - </a></td>
+    </tr>
+    <tr>
+      <td>KN</td>
+      <td>KRR</td>
+      <td>5</td>
+      <td>0</td>
+      <td>1</td>
+      <td><a href="https://lichess.org/analysis/pgn/%5BFEN+%228%2F8%2F8%2F8%2F8%2F8%2Fr2Nr3%2Fk1K5+w+-+-+0+1%22%5D%0A%0A1.+Nb3%23+%2A#1" target="_blank">8/8/8/8/8/8/r2Nr3/k1K5 w - - </a></td>
+    </tr>
+  </tbody>
+</table>
+
+<script>
+  const table = document.getElementById("dataTable");
+  const headers = Array.from(table.querySelectorAll("thead tr:first-child th"));
+  const filters = Array.from(table.querySelectorAll(".filter-row input"));
+  const tbody = table.querySelector("tbody");
+
+  let sortOrder = [];
+  let allRows = Array.from(tbody.querySelectorAll("tr"));
+
+  /* ---------- Sorting ---------- */
+  headers.forEach(header => {
+    header.addEventListener("click", event => {
+      const key = header.dataset.key;
+      const existing = sortOrder.find(s => s.key === key);
+
+      if (!event.shiftKey) {
+        sortOrder = [];
+      }
+
+      if (existing) {
+        existing.direction = existing.direction === "asc" ? "desc" : "asc";
+      } else {
+        sortOrder.push({ key, direction: "asc" });
+      }
+
+      updateHeaderIndicators();
+      applyFilterAndSort();
+    });
+  });
+
+  function sortRows(rows) {
+    return rows.sort((a, b) => {
+      for (const sort of sortOrder) {
+        const index = headers.findIndex(h => h.dataset.key === sort.key);
+        let valA = a.children[index].textContent;
+        let valB = b.children[index].textContent;
+
+        const numA = parseFloat(valA);
+        const numB = parseFloat(valB);
+
+        if (!isNaN(numA) && !isNaN(numB)) {
+          valA = numA;
+          valB = numB;
+        }
+
+        if (valA < valB) return sort.direction === "asc" ? -1 : 1;
+        if (valA > valB) return sort.direction === "asc" ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  function updateHeaderIndicators() {
+    headers.forEach(h => {
+      h.classList.remove("sorted");
+      h.querySelector(".sort-indicator")?.remove();
+    });
+
+    sortOrder.forEach((sort, index) => {
+      const header = headers.find(h => h.dataset.key === sort.key);
+      header.classList.add("sorted");
+
+      const indicator = document.createElement("span");
+      indicator.className = "sort-indicator";
+      indicator.textContent = `${sort.direction === "asc" ? "▲" : "▼"} ${index + 1}`;
+      header.appendChild(indicator);
+    });
+  }
+
+  /* ---------- Filtering ---------- */
+  filters.forEach(input => {
+    input.addEventListener("input", applyFilterAndSort);
+  });
+
+  function applyFilterAndSort() {
+    const activeFilters = filters.map(input => ({
+      key: input.dataset.key,
+      value: input.value.toLowerCase()
+    }));
+
+    let filteredRows = allRows.filter(row => {
+      return activeFilters.every(filter => {
+        if (!filter.value) return true;
+        const index = headers.findIndex(h => h.dataset.key === filter.key);
+        const cellValue = row.children[index].textContent.toLowerCase();
+        return cellValue.includes(filter.value);
+      });
+    });
+
+    if (sortOrder.length > 0) {
+      filteredRows = sortRows(filteredRows);
+    }
+
+    tbody.innerHTML = "";
+    filteredRows.forEach(row => tbody.appendChild(row));
+  }
+</script>
+
+</body>
+</html>
