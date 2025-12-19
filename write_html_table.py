@@ -50,8 +50,11 @@ df["#moves"] = (df["plies"] // 2 + 1).map(lambda p: "NA" if pd.isna(p) else str(
 df["Line"] = df.apply(maybe_get_lichess, axis=1)
 
 df = df.sort_values(["#pieces", "#pawns", "#STM", "#SNTM"], ascending=[True, True, False, False], kind="stable")
+df["dummy"] = ""
 
-html = (df[["STM", "SNTM", "#pieces", "#pawns", "#plies", "Line"]]
+
+
+html = (df[["dummy", "STM", "SNTM", "#pieces", "#pawns", "#plies", "Line"]]
         .fillna("NA")
         .to_html(escape=False, header=False, index=False)
     )
