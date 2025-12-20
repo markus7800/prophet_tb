@@ -50,30 +50,14 @@ function move_to(next_index) {
     next_index = parseInt(next_index)
     // console.log("move from", index, "to", next_index)
     if (0 <= next_index && next_index < moves.length) {
-        if (next_index == index + 1) {
-            const m = moves[next_index];
-            // console.log(m)
-            let sq1 = m.substring(0,2)
-            let sq2 = m.substring(2,4)
-            board.move(sq1 + "-" + sq2)
-            index = next_index;
-        } else if (next_index == index - 1) {
-            const m = moves[next_index+1];
-            // console.log(m)
-            let sq1 = m.substring(0,2)
-            let sq2 = m.substring(2,4)
-            board.move(sq2 + "-" + sq1)
-            index = next_index;
-        } else {
-            const chess = new Chess(fen);
-            for (var i = 0; i <= next_index; i++) {
-                const move = move_from_uci(moves[i])
-                const result = chess.move(move);
-                if (!result) throw new Error(`Illegal move: ${uci}`);
-            }
-            board.position(chess.fen(), false)
-            index = next_index;
+        const chess = new Chess(fen);
+        for (var i = 0; i <= next_index; i++) {
+            const move = move_from_uci(moves[i])
+            const result = chess.move(move);
+            if (!result) throw new Error(`Illegal move: ${uci}`);
         }
+        board.position(chess.fen(), false)
+        index = next_index;
 
         $board.find('.square-55d63').removeClass('highlight-check')
         if (san_history[index].slice(-1) == "+" || san_history[index].slice(-1) == "#") {
