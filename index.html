@@ -35,7 +35,7 @@
     }
     tbody tr td:first-child::before {
       content: counter(rowNumber);
-      min-width: 1em;
+      min-width: 40px;
       display: inline-block;
       margin-right: 5px;
     }
@@ -172,7 +172,7 @@
     <li><span>SNTM:</span> side-not-to-move pieces</li>
     <li><span>#pieces:</span> number of pieces</li>
     <li><span>#pawns:</span> number of pawns</li>
-    <li><span>DTM:</span> distance-to-mate in plies (= mate in DTM/2+1 moves)</li>
+    <li><span>DTM:</span> distance-to-mate in plies (= mate in DTM/2+1 moves, no 50-move rule)</li>
     <li><span>Checkmate Line:</span> clickable FEN which copies PGN to clipboard</li>
   </ul>
 </div>
@@ -191,14 +191,14 @@
   Click to (reset) sort. Shift+Click for multi-column sorting and reversing order.<br><br>
 
   Type in filters to narrow results.<br>
-  Use regular expressions for pieces. E.g. "KQ.*NP".<br>
-  Use literals or "(>= | <= | > | < | == | !=) value" for numbers. E.g. ">=100" for DTM.
+  Use regular expressions for pieces, e.g. "KQ.*NP".<br>
+  Use literals or "(>= | <= | > | < | == | !=) value" for numbers, e.g. ">=100" for DTM.
 
 </div>
 
 <table id="dataTable", border="1">
   <colgroup>
-    <col style="width: 10px">
+    <col style="width: 40px">
     <col style="width: 120px">
     <col style="width: 120px">
     <col style="width: 120px">
