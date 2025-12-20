@@ -9,7 +9,6 @@
       padding: 20px;
     }
     #table-container {
-      height: 300px;
       overflow-y: auto;
       border: 1px solid #ccc;
     }
@@ -55,6 +54,11 @@
       box-shadow: inset 0 0 3px 3px orangered;
     }
 
+    #fen {
+      font-size: larger;
+      font-weight: bolder;
+    }
+
   </style>
   <link rel="stylesheet"
   href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
@@ -75,6 +79,11 @@
 </head>
 <body>
   <h2>Endgame Explorer</h2>
+  <div style="margin-bottom: 20px;">
+    <span id="fen">FEN</span>
+    <button id="copy-pgn">Copy PGN</button>
+  </div>
+
   <div style="float: left;">
     <div id="chess-board" style="width: 400px;"></div>
     <div style="margin-top: 10px; display: flex; justify-content: center;">
@@ -85,7 +94,7 @@
     </div>
   </div>
   
-  <div id="table-container" style="height: 420px; float: left; margin-left: 20px;">
+  <div id="table-container" style="max-height: 420px; float: left; margin-left: 20px;">
     <table id="pgn-table">
       <colgroup>
         <col style="width: 10px">

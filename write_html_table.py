@@ -23,9 +23,10 @@ def get_pgn_str(fen, pv, plies):
 def maybe_get_lichess(row):
     fen = row["fen"]
     if pd.isna(fen): return "NA"
-    pgn = get_pgn_str(row["fen"], row["pv"], row["plies"])
+    # pgn = get_pgn_str(row["fen"], row["pv"], row["plies"])
+    pgn = row["pv"]
     pgn_escaped = html.escape(pgn).replace("\n","&#10;")
-    return f"<span class=\"copy-pgn\" data=\"{pgn_escaped}\" onclick=\"copyFromElement(this)\">{fen}</span>"
+    return f"<span class=\"copy-pgn\" data=\"{pgn_escaped}\">{fen}</span>"
 
 df = pd.read_csv("longest_mates.csv")
 df = df.convert_dtypes()
