@@ -121,6 +121,7 @@ function reset() {
     board.position(fen)
     index = -1
     const cell = document.querySelector(`#pgn-table td[data-index="${0}"]`)
+    $board.find('.square-55d63').removeClass('highlight-check')
     scrollToCell(cell)
 }
 
