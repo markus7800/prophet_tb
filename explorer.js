@@ -21,7 +21,7 @@ function init() {
     moves = components[1].split(" ");
     console.log(fen)
     console.log(moves)
-    document.querySelector("#fen").innerHTML = fen
+    document.querySelector("#fen").innerHTML = fen + "<br> Mate in " + (Math.floor(moves.length/2) + 1)
 }
 
 function move_from_uci(uci) {
