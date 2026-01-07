@@ -1,30 +1,11 @@
 import pandas as pd
-import chess
-import chess.pgn
-import urllib.parse
+import math
 import html
 
-def get_pgn_str(fen, pv, plies):
-    game = chess.pgn.Game()
-    game.setup(fen)
-    game.add_line([chess.Move.from_uci(move) for move in pv.split()])
-
-    del game.headers["Event"]
-    del game.headers["Site"]
-    del game.headers["Date"]
-    del game.headers["Round"]
-    del game.headers["White"]
-    del game.headers["Black"]
-    del game.headers["SetUp"]
-    del game.headers["Result"]
-    s = str(game)
-    return s
-
-def maybe_get_lichess(row):
+def line_span(row):
     fen = row["fen"]
     if pd.isna(fen): return "NA"
-    # pgn = get_pgn_str(row["fen"], row["pv"], row["plies"])
-    pgn = row["pv"]
+    pgn = row["line"].strip()
     pgn_escaped = html.escape(pgn).replace("\n","&#10;")
     return f"<span class=\"copy-pgn\" data=\"{pgn_escaped}\">{fen}</span>"
 
@@ -40,22 +21,33 @@ piecemap_dict = {
 }
 def piecemap(c): return piecemap_dict[c]
 
+def bytes_to_human_readable(b):
+    h = b
+    m = 0
+    while math.ceil(h) >= 1024:
+        m += 1
+        h /= 1024
+    u = ["B", "KiB", "MiB", "GiB"][m]
+    return f"<span data=\"{b}\">{h:.4g} {u}</span>"
+
+
 df["STM"] = df["id"].map(lambda s: "".join(map(piecemap,"K"+s.split("K")[1])))
 df["SNTM"] = df["id"].map(lambda s: "".join(map(piecemap,"K"+s.split("K")[2])))
 df["#STM"] = df["id"].map(lambda s: len("K"+s.split("K")[1]))
 df["#SNTM"] = df["id"].map(lambda s: len("K"+s.split("K")[2]))
 df["#pieces"] = df["id"].map(lambda s: len(s))
 df["#pawns"] = df["id"].map(lambda s: s.count("P"))
-df["#plies"] = (df["plies"]).map(lambda p: "NA" if pd.isna(p) else str(int(p)))
-df["#moves"] = (df["plies"] // 2 + 1).map(lambda p: "NA" if pd.isna(p) else str(int(p)))
-df["Line"] = df.apply(maybe_get_lichess, axis=1)
+df["#plies"] = (df["dtm"]).map(lambda p: "NA" if pd.isna(p) else str(int(p)))
+df["#moves"] = (df["dtm"] // 2 + 1).map(lambda p: "NA" if pd.isna(p) else str(int(p)))
+df["line_span"] = df.apply(line_span, axis=1)
+df["#positions"] = df["numpos"]
+df["size"] = df["bytes"].map(bytes_to_human_readable)
 
 df = df.sort_values(["#pieces", "#pawns", "#STM", "#SNTM"], ascending=[True, True, False, False], kind="stable")
 df["dummy"] = ""
 
 
-
-html = (df[["dummy", "STM", "SNTM", "#pieces", "#pawns", "#plies", "Line"]]
+html = (df[["dummy", "STM", "SNTM", "#pieces", "#pawns", "#plies", "line_span", "#positions", "size"]]
         .fillna("NA")
         .to_html(escape=False, header=False, index=False)
     )
