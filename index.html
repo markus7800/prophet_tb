@@ -204,6 +204,7 @@
 
 </div>
 
+<h4 id="size-header">Total size of selected tables: 0</h4>
 <table id="dataTable", border="1">
   <colgroup>
     <col style="width: 40px">
@@ -11263,6 +11264,7 @@
 
   let sortOrder = [];
   let allRows = Array.from(tbody.querySelectorAll("tr"));
+  updateSize(allRows);
 
   allRows.forEach(row => {
     const fen_cell = row.children[6].children[0];
@@ -11420,7 +11422,28 @@
     }
 
     tbody.innerHTML = "";
+
     filteredRows.forEach(row => tbody.appendChild(row));
+
+    updateSize(filteredRows);
+  }
+
+  function updateSize(filteredRows) {
+    const size_header = document.getElementById("size-header");
+
+    size = 0
+    filteredRows.forEach(row => {
+      size += parseInt(row.children[8].children[0].getAttribute("data"));
+    });
+    if (!isNaN(size)) {
+      m = 0
+      while (Math.ceil(size) >= 1024 && m < 3) {
+        m += 1
+        size /= 1024
+      }
+      console.log(size, ["B", "KiB", "MiB", "GiB", "TiB"][m])
+      size_header.textContent = "Total size of selected tables: " + Math.ceil(size) + " " + ["B", "KiB", "MiB", "GiB", "TiB"][m]
+    }
   }
 
   function move_from_uci(uci) {
