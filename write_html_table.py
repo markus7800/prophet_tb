@@ -30,6 +30,16 @@ def bytes_to_human_readable(b):
     u = ["B", "KiB", "MiB", "GiB"][m]
     return f"<span data=\"{b}\">{h:.4g} {u}</span>"
 
+def round_perc(p):
+    digits = 4
+    p_rounded = round(p, digits)
+    if p > 0 and p_rounded == 0:
+        p = 0.1 ** digits
+        # return f"<{p:.4f}"
+    if p < 100 and p_rounded == 100:
+        p = 100 - 0.1 ** digits
+        # return f">{p:.4f}"
+    return f"{p:.4f}"
 
 df["STM"] = df["id"].map(lambda s: "".join(map(piecemap,"K"+s.split("K")[1])))
 df["SNTM"] = df["id"].map(lambda s: "".join(map(piecemap,"K"+s.split("K")[2])))
@@ -40,14 +50,18 @@ df["#pawns"] = df["id"].map(lambda s: s.count("P"))
 df["#plies"] = (df["dtm"]).map(lambda p: "NA" if pd.isna(p) else str(int(p)))
 df["#moves"] = (df["dtm"] // 2 + 1).map(lambda p: "NA" if pd.isna(p) else str(int(p)))
 df["line_span"] = df.apply(line_span, axis=1)
-df["#positions"] = df["numpos"]
+df["#entries"] = df["num_entries"]
+df["num_pos"] = df["num_win_pos"] + df["num_draw_pos"] + df["num_loss_pos"]
+df["perc_win"] = (df["num_win_pos"] / df["num_pos"] * 100).map(round_perc)
+df["perc_draw"] = (df["num_draw_pos"] / df["num_pos"] * 100).map(round_perc)
+df["perc_loss"] = (df["num_loss_pos"] / df["num_pos"] * 100).map(round_perc)
 df["size"] = df["bytes"].map(bytes_to_human_readable)
 
 df = df.sort_values(["#pieces", "#pawns", "#STM", "#SNTM"], ascending=[True, True, False, False], kind="stable")
 df["dummy"] = ""
 
 
-html = (df[["dummy", "STM", "SNTM", "#pieces", "#pawns", "#plies", "line_span", "#positions", "size"]]
+html = (df[["dummy", "STM", "SNTM", "#pieces", "#pawns", "#plies", "line_span", "size", "#entries", "perc_win", "perc_draw", "perc_loss"]]
         .fillna("NA")
         .to_html(escape=False, header=False, index=False)
     )
