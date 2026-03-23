@@ -1,0 +1,37 @@
+.chess-score-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0px; /* Space between the elements */
+  font-family: Arial, sans-serif;
+}
+
+.chess-square {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  font-weight: bold;
+  border: 0px solid #333; /* Gives a crisp edge to the squares */
+}
+
+/* Color A (Dark Square) */
+.chess-square.dark {
+  background-color: #b58863;
+  color: #111111;
+  /* color: #ffffff; */
+}
+
+/* Color B (Light Square) */
+.chess-square.light {
+  background-color: #f0d9b5;
+  color: #111111;
+}
+
+.vs-text {
+  margin: 0 4px;
+  font-size: 0.9em;
+  font-weight: bold;
+  color: #666;
+  text-transform: lowercase;
+}

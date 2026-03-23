@@ -9,7 +9,11 @@ def line_span(row):
     pgn_escaped = html.escape(pgn).replace("\n","&#10;")
     return f"<span class=\"copy-pgn\" data=\"{pgn_escaped}\">{fen}</span>"
 
-df = pd.read_csv("longest_mates.csv")
+bishbops = True
+
+df = pd.read_csv("longest_mates_bb.csv") if bishbops else pd.read_csv("longest_mates.csv") 
+
+
 df = df.convert_dtypes()
 piecemap_dict = {
     "P": "<span class=\"pawn\">P</span>",
@@ -41,8 +45,22 @@ def round_perc(p):
         # return f">{p:.4f}"
     return f"{p:.4f}"
 
+def bishop_config_cell(s):
+    a, b, c, d = s[1], s[2], s[4], s[5]
+    return (
+    f"<div class=\"chess-score-wrapper\" data=\"{s[1:]}\">"+
+    f"<span class=\"chess-square dark\">{a}</span>"+
+    f"<span class=\"chess-square light\">{b}</span>"+
+    "<span class=\"vs-text\">vs</span>"+
+    f"<span class=\"chess-square dark\">{c}</span>"+
+    f"<span class=\"chess-square light\">{d}</span>"+
+    "</div>"
+    )
+
 df["STM"] = df["id"].map(lambda s: "".join(map(piecemap,"K"+s.split("K")[1])))
 df["SNTM"] = df["id"].map(lambda s: "".join(map(piecemap,"K"+s.split("K")[2])))
+if bishbops:
+    df["bishop_config"] = df["bishop_config"].map(bishop_config_cell)
 df["#STM"] = df["id"].map(lambda s: len("K"+s.split("K")[1]))
 df["#SNTM"] = df["id"].map(lambda s: len("K"+s.split("K")[2]))
 df["#pieces"] = df["id"].map(lambda s: len(s))
@@ -50,7 +68,10 @@ df["#pawns"] = df["id"].map(lambda s: s.count("P"))
 df["#plies"] = (df["dtm"]).map(lambda p: "NA" if pd.isna(p) else str(int(p)))
 df["#moves"] = (df["dtm"] // 2 + 1).map(lambda p: "NA" if pd.isna(p) else str(int(p)))
 df["line_span"] = df.apply(line_span, axis=1)
-df["#entries"] = df["num_entries"]
+if bishbops:
+    df["#entries"] = df["num_win_ix"] + df["num_draw_ix"] + df["num_loss_ix"] + df["num_broken_ix"]
+else:
+    df["#entries"] = df["num_entries"]
 df["num_pos"] = df["num_win_pos"] + df["num_draw_pos"] + df["num_loss_pos"]
 df["perc_win"] = (df["num_win_pos"] / df["num_pos"] * 100).map(round_perc)
 df["perc_draw"] = (df["num_draw_pos"] / df["num_pos"] * 100).map(round_perc)
@@ -60,8 +81,12 @@ df["size"] = df["bytes"].map(bytes_to_human_readable)
 df = df.sort_values(["#pieces", "#pawns", "#STM", "#SNTM"], ascending=[True, True, False, False], kind="stable")
 df["dummy"] = ""
 
+cols = ["dummy", "STM", "SNTM", "#pieces", "#pawns", "#plies", "line_span", "size", "#entries", "perc_win", "perc_draw", "perc_loss"]
+if bishbops:
+    cols.insert(3, "bishop_config")
+    cols.remove("size")
 
-html = (df[["dummy", "STM", "SNTM", "#pieces", "#pawns", "#plies", "line_span", "size", "#entries", "perc_win", "perc_draw", "perc_loss"]]
+html = (df[cols]
         .fillna("NA")
         .to_html(escape=False, header=False, index=False)
     )
