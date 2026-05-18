@@ -6,8 +6,15 @@ def line_span(row):
     fen = row["fen"]
     if pd.isna(fen): return "NA"
     pgn = row["line"].strip()
-    pgn_escaped = html.escape(pgn).replace("\n","&#10;")
-    return f"<span class=\"copy-pgn\" data=\"{pgn_escaped}\">{fen}</span>"
+    pgn_escaped = html.escape(pgn).replace("\n", "&#10;")
+    fen_text = html.escape(str(fen))
+    # Build a lichess analysis URL: replace spaces in FEN with underscores
+    fen_for_url = str(fen).strip().replace(" ", "_")
+    lichess_url = f"https://lichess.org/analysis/standard/{fen_for_url}"
+    # Use lichess favicon as a small logo; open in new tab safely
+    lichess_img = '<img src="Lichess_Logo_2019.svg.png" alt="lichess" style="height:1em;vertical-align:middle;margin-left:4px">'
+    lichess_link = f'<a class="lichess-link" href="{lichess_url}" target="_blank" rel="noopener noreferrer" title="Open in Lichess">{lichess_img}</a>'
+    return f'<span class="copy-pgn" data="{pgn_escaped}">{fen_text}</span> {lichess_link}'
 
 bishbops = True
 
